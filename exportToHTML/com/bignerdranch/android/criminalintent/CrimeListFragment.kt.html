@@ -1,0 +1,147 @@
+<html>
+<head>
+<title>CrimeListFragment.kt</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6a8759;}
+.s3 { color: #629755; font-style: italic;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+CrimeListFragment.kt</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">com.bignerdranch.android.criminalintent</span>
+
+<span class="s1">import android.content.Context</span>
+<span class="s1">import android.os.Bundle</span>
+<span class="s1">import android.util.Log</span>
+<span class="s1">import android.view.LayoutInflater</span>
+<span class="s1">import android.view.View</span>
+<span class="s1">import android.view.ViewGroup</span>
+<span class="s1">import android.widget.ImageView</span>
+<span class="s1">import android.widget.TextView</span>
+<span class="s1">import android.widget.Toast</span>
+<span class="s1">import androidx.fragment.app.Fragment</span>
+<span class="s1">import androidx.lifecycle.Observer</span>
+
+<span class="s1">import androidx.lifecycle.ViewModelProviders</span>
+<span class="s1">import androidx.recyclerview.widget.LinearLayoutManager</span>
+<span class="s1">import androidx.recyclerview.widget.RecyclerView</span>
+<span class="s1">import java.util.*</span>
+
+<span class="s1">private const </span><span class="s0">val </span><span class="s1">TAG = </span><span class="s2">&quot;CrimeListFragment&quot;</span>
+
+<span class="s0">class </span><span class="s1">CrimeListFragment: Fragment() {</span>
+    <span class="s3">/**</span>
+     <span class="s3">* Required interface for hosting activities</span>
+     <span class="s3">*/</span>
+    <span class="s0">interface </span><span class="s1">Callbacks {</span>
+        <span class="s0">fun </span><span class="s1">onCrimeSelected(crimeId: UUID)</span>
+    <span class="s1">}</span>
+    <span class="s1">private </span><span class="s0">var </span><span class="s1">callbacks: Callbacks? = </span><span class="s0">null</span>
+    <span class="s1">private lateinit </span><span class="s0">var </span><span class="s1">crimeRecyclerView: RecyclerView</span>
+    <span class="s1">private </span><span class="s0">var </span><span class="s1">adapter: CrimeAdapter? = CrimeAdapter(emptyList())</span>
+
+    <span class="s1">private </span><span class="s0">val </span><span class="s1">crimeListViewModel: CrimeListViewModel by lazy {</span>
+        <span class="s1">ViewModelProviders.of(</span><span class="s0">this</span><span class="s1">).get(CrimeListViewModel::</span><span class="s0">class</span><span class="s1">.java)</span>
+    <span class="s1">}</span>
+    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onAttach(context: Context) {</span>
+        <span class="s0">super</span><span class="s1">.onAttach(context)</span>
+        <span class="s1">callbacks = context </span><span class="s0">as </span><span class="s1">Callbacks?</span>
+    <span class="s1">}</span>
+
+    <span class="s1">companion </span><span class="s0">object </span><span class="s1">{</span>
+        <span class="s0">fun </span><span class="s1">newInstance(): CrimeListFragment {</span>
+            <span class="s0">return </span><span class="s1">CrimeListFragment()</span>
+        <span class="s1">}</span>
+    <span class="s1">}</span>
+
+    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onCreateView(</span>
+        <span class="s1">inflater: LayoutInflater</span><span class="s0">,</span>
+        <span class="s1">container: ViewGroup?</span><span class="s0">,</span>
+        <span class="s1">savedInstanceState: Bundle?</span>
+    <span class="s1">): View? {</span>
+        <span class="s0">val </span><span class="s1">view = inflater.inflate(R.layout.fragment_crime_list</span><span class="s0">,</span>
+            <span class="s1">container</span><span class="s0">, false</span><span class="s1">)</span>
+        <span class="s1">crimeRecyclerView = view.findViewById(R.id.crime_recycler_view) </span><span class="s0">as </span><span class="s1">RecyclerView</span>
+        <span class="s1">crimeRecyclerView.layoutManager = LinearLayoutManager(context)</span>
+        <span class="s1">crimeRecyclerView.adapter = adapter</span>
+        <span class="s0">return </span><span class="s1">view</span>
+    <span class="s1">}</span>
+
+    <span class="s1">private </span><span class="s0">fun </span><span class="s1">updateUI(crimes: List&lt;Crime&gt;) {</span>
+        <span class="s1">adapter = CrimeAdapter(crimes)</span>
+        <span class="s1">crimeRecyclerView.adapter = adapter</span>
+    <span class="s1">}</span>
+
+    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onViewCreated(view: View</span><span class="s0">, </span><span class="s1">savedInstanceState: Bundle?)</span>
+    <span class="s1">{</span>
+        <span class="s0">super</span><span class="s1">.onViewCreated(view</span><span class="s0">, </span><span class="s1">savedInstanceState)</span>
+        <span class="s1">crimeListViewModel.crimeListLiveData.observe(</span>
+            <span class="s1">viewLifecycleOwner</span><span class="s0">,</span>
+            <span class="s1">Observer { crimes -&gt;</span>
+                <span class="s1">crimes?.let {</span>
+                    <span class="s1">Log.i(TAG</span><span class="s0">, </span><span class="s2">&quot;Got crimes </span><span class="s0">${</span><span class="s1">crimes.size</span><span class="s0">}</span><span class="s2">&quot;</span><span class="s1">)</span>
+                    <span class="s1">updateUI(crimes)</span>
+                <span class="s1">}</span>
+            <span class="s1">})</span>
+    <span class="s1">}</span>
+    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onDetach() {</span>
+        <span class="s0">super</span><span class="s1">.onDetach()</span>
+        <span class="s1">callbacks = </span><span class="s0">null</span>
+    <span class="s1">}</span>
+
+
+
+    <span class="s1">private inner </span><span class="s0">class </span><span class="s1">CrimeHolder(view: View)</span>
+        <span class="s1">: RecyclerView.ViewHolder(view)</span><span class="s0">, </span><span class="s1">View.OnClickListener {</span>
+        <span class="s1">private lateinit </span><span class="s0">var </span><span class="s1">crime: Crime</span>
+        <span class="s1">private </span><span class="s0">val </span><span class="s1">titleTextView: TextView =  itemView.findViewById(R.id.crime_title)</span>
+        <span class="s1">private </span><span class="s0">val </span><span class="s1">dateTextView: TextView = itemView.findViewById(R.id.crime_date)</span>
+        <span class="s1">private </span><span class="s0">val </span><span class="s1">solvedImageView: ImageView =</span>
+            <span class="s1">itemView.findViewById(R.id.crime_solved)</span>
+
+        <span class="s1">init {</span>
+            <span class="s1">itemView.setOnClickListener(</span><span class="s0">this</span><span class="s1">)</span>
+        <span class="s1">}</span>
+
+        <span class="s0">fun </span><span class="s1">bind(crime: Crime) {</span>
+            <span class="s0">this</span><span class="s1">.crime = crime</span>
+            <span class="s1">titleTextView.text = </span><span class="s0">this</span><span class="s1">.crime.title</span>
+            <span class="s1">dateTextView.text = </span><span class="s0">this</span><span class="s1">.crime.date.toString()</span>
+            <span class="s1">solvedImageView.visibility = </span><span class="s0">if </span><span class="s1">(crime.isSolved) {</span>
+                <span class="s1">View.VISIBLE</span>
+            <span class="s1">} </span><span class="s0">else </span><span class="s1">{</span>
+                <span class="s1">View.GONE</span>
+            <span class="s1">}</span>
+        <span class="s1">}</span>
+        <span class="s1">override </span><span class="s0">fun </span><span class="s1">onClick(v: View) {</span>
+            <span class="s1">callbacks?.onCrimeSelected(crime.id)</span>
+        <span class="s1">}</span>
+    <span class="s1">}</span>
+
+    <span class="s1">private inner </span><span class="s0">class </span><span class="s1">CrimeAdapter(</span><span class="s0">var </span><span class="s1">crimes: List&lt;Crime&gt;)</span>
+        <span class="s1">: RecyclerView.Adapter&lt;CrimeHolder&gt;() {</span>
+        <span class="s1">override </span><span class="s0">fun </span><span class="s1">onCreateViewHolder(parent: ViewGroup</span><span class="s0">, </span><span class="s1">viewType:</span>
+        <span class="s1">Int)</span>
+                <span class="s1">: CrimeHolder {</span>
+            <span class="s0">val </span><span class="s1">view = layoutInflater.inflate(R.layout.list_item_crime</span><span class="s0">,</span>
+                <span class="s1">parent</span><span class="s0">, false</span><span class="s1">)</span>
+            <span class="s0">return </span><span class="s1">CrimeHolder(view)</span>
+        <span class="s1">}</span>
+        <span class="s1">override </span><span class="s0">fun </span><span class="s1">getItemCount() = crimes.size</span>
+        <span class="s1">override </span><span class="s0">fun </span><span class="s1">onBindViewHolder(holder: CrimeHolder</span><span class="s0">, </span><span class="s1">position:</span>
+        <span class="s1">Int) {</span>
+            <span class="s0">val </span><span class="s1">crime = crimes[position]</span>
+            <span class="s1">holder.bind(crime)</span>
+        <span class="s1">}</span>
+    <span class="s1">}</span>
+
+<span class="s1">}</span></pre>
+</body>
+</html>

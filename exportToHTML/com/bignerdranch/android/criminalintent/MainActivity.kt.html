@@ -1,0 +1,52 @@
+<html>
+<head>
+<title>MainActivity.kt</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #808080;}
+.s3 { color: #6a8759;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+MainActivity.kt</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">com.bignerdranch.android.criminalintent</span>
+
+<span class="s2">//import android.support.v7.app.AppCompatActivity</span>
+<span class="s1">import android.os.Bundle</span>
+<span class="s1">import android.util.Log</span>
+<span class="s1">import androidx.appcompat.app.AppCompatActivity</span>
+<span class="s1">import java.util.*</span>
+
+<span class="s1">private const </span><span class="s0">val </span><span class="s1">TAG = </span><span class="s3">&quot;MainActivity&quot;</span>
+<span class="s0">class </span><span class="s1">MainActivity : AppCompatActivity()</span><span class="s0">,</span><span class="s1">CrimeListFragment.Callbacks {</span>
+    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onCreate(savedInstanceState: Bundle?) {</span>
+        <span class="s0">super</span><span class="s1">.onCreate(savedInstanceState)</span>
+        <span class="s1">setContentView(R.layout.activity_main)</span>
+        <span class="s0">val </span><span class="s1">currentFragment =</span>
+            <span class="s1">supportFragmentManager.findFragmentById(R.id.fragment_container)</span>
+        <span class="s0">if </span><span class="s1">(currentFragment == </span><span class="s0">null</span><span class="s1">) {</span>
+            <span class="s0">val </span><span class="s1">fragment = CrimeListFragment.newInstance()</span>
+            <span class="s1">supportFragmentManager</span>
+                <span class="s1">.beginTransaction()</span>
+                <span class="s1">.add(R.id.fragment_container</span><span class="s0">, </span><span class="s1">fragment)</span>
+                <span class="s1">.commit()</span>
+        <span class="s1">}</span>
+
+    <span class="s1">}</span>
+    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onCrimeSelected(crimeId: UUID) {</span>
+        <span class="s0">val </span><span class="s1">fragment = CrimeFragment.newInstance(crimeId)</span>
+        <span class="s1">supportFragmentManager</span>
+            <span class="s1">.beginTransaction()</span>
+            <span class="s1">.replace(R.id.fragment_container</span><span class="s0">, </span><span class="s1">fragment)</span>
+            <span class="s1">.addToBackStack(</span><span class="s0">null</span><span class="s1">)</span>
+            <span class="s1">.commit()</span>
+    <span class="s1">}</span>
+<span class="s1">}</span></pre>
+</body>
+</html>
